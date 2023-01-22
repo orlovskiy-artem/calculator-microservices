@@ -1,0 +1,73 @@
+version: "3.9"
+services:
+  addition-service:
+    # image: addition-service:latest
+    build:
+      context: ./addition-service
+    container_name: addition-service
+    ports:
+      - "8082:8082"
+    environment:
+      server.port: 8082
+      eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka
+    networks:
+      - calculator-network
+    depends_on:
+      - discovery-service
+    
+  multiplication-service:
+    build:
+      context: ./multiplication-service 
+    container_name: multiplication-service
+    expose:
+      - "8081:8081"
+    environment:
+      server.port: 8081
+      eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka
+    networks:
+      - calculator-network
+    depends_on:
+      - discovery-service
+  
+  subtraction-service:
+    # image: subtraction-service:latest
+    build:
+      context: ./subtraction-service
+    ports:
+      - "8084:8084"
+    environment:
+      server.port: 8084
+      eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka
+    networks:
+      - calculator-network
+    depends_on:
+      - discovery-service
+
+  calculator-service:
+    # image: calculator-service:latest
+    build:
+      context: ./calculator-service
+    ports:
+      - "8080:8080"
+    environment:
+      server.port: 8080
+      eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka
+    networks:
+      - calculator-network
+    depends_on:
+      - discovery-service
+
+  discovery-service:
+    # image: service-discovery:latest
+    build:
+      context: ./service-discovery
+    ports:
+      - "8761:8761"
+    networks:
+       - calculator-network
+    environment:
+      eureka.instance.hostname: discovery-service
+      eureka.client.serviceUrl.defaultZone: http://discovery-service:8761/eureka
+
+networks:
+  calculator-network:
